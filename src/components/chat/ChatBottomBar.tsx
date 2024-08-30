@@ -1,14 +1,35 @@
 import { useRef, useState } from "react"
 import { ImageIcon, Loader, SendHorizonal, ThumbsUp } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
+import useSound from "use-sound"
+
 import { Textarea } from "../ui/textarea"
 import EmojiPicker from "./EmojiPicker"
 import { Button } from "../ui/button"
+
+import { usePreferences } from "@/store/usePreferences"
 
 const ChatBottomBar = () => {
 	const [message, setMessage] = useState("")
 	const messageRef = useRef<HTMLTextAreaElement | null>(null)
 	const isPending = false
+
+	const { soundEnabled } = usePreferences()
+
+	const [playSound1] = useSound("/sounds/keystroke1.mp3")
+	const [playSound2] = useSound("/sounds/keystroke2.mp3")
+	const [playSound3] = useSound("/sounds/keystroke3.mp3")
+	const [playSound4] = useSound("/sounds/keystroke4.mp3")
+
+	const keyStrokeSoundsList = [playSound1, playSound2, playSound3, playSound4]
+
+	const playRandomKeyStrokeSound = () => {
+		const randomSound = Math.floor(
+			Math.random() * keyStrokeSoundsList.length
+		)
+
+		soundEnabled && keyStrokeSoundsList[randomSound]()
+	}
 
 	return (
 		<div className="p-2 flex justify-between w-full items-center gap-2">
@@ -38,7 +59,10 @@ const ChatBottomBar = () => {
 						rows={1}
 						placeholder="Aa"
 						value={message}
-						onChange={(evt) => setMessage(evt.target.value)}
+						onChange={(evt) => {
+							setMessage(evt.target.value)
+							playRandomKeyStrokeSound()
+						}}
 					/>
 					<div className="absolute right-2 bottom-0.5">
 						<EmojiPicker
