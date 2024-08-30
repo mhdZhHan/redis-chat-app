@@ -1,14 +1,14 @@
 import { USERS } from "@/db/dummy"
 
-import { ScrollArea } from "./ui/scroll-area"
+import { ScrollArea } from "../ui/scroll-area"
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
-} from "./ui/tooltip"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { Button } from "./ui/button"
+} from "../ui/tooltip"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
 import { LogOut } from "lucide-react"
 

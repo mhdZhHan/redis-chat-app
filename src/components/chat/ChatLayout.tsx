@@ -7,7 +7,8 @@ import {
 	ResizablePanelGroup,
 } from "../ui/resizable"
 import { cn } from "@/lib/utils"
-import Sidebar from "../Sidebar"
+import Sidebar from "./Sidebar"
+import MessageContainer from "./MessageContainer"
 
 type ChatLayoutProps = {
 	defaultLayout: number[] | undefined
@@ -67,7 +68,7 @@ const ChatLayout = ({ defaultLayout = [320, 480] }: ChatLayoutProps) => {
 			</ResizablePanel>
 			<ResizableHandle withHandle />
 			<ResizablePanel>
-				<div className="flex justify-center items-center h-full w-full px-10">
+				{/* <div className="flex justify-center items-center h-full w-full px-10">
 					<div className="flex flex-col justify-center items-center gap-4">
 						<img
 							src="/logo.png"
@@ -78,7 +79,9 @@ const ChatLayout = ({ defaultLayout = [320, 480] }: ChatLayoutProps) => {
 							Click on a chat to view the messages
 						</p>
 					</div>
-				</div>
+				</div> */}
+
+				<MessageContainer />
 			</ResizablePanel>
 		</ResizablePanelGroup>
 	)
