@@ -42,7 +42,7 @@ const ChatLayout = ({ defaultLayout = [320, 480] }: ChatLayoutProps) => {
 			onLayout={(sizes: number[]) => {
 				document.cookie = `react-resizable-panels:layout=${JSON.stringify(
 					sizes
-				)}`
+				)}; `
 			}}
 		>
 			<ResizablePanel
@@ -53,15 +53,15 @@ const ChatLayout = ({ defaultLayout = [320, 480] }: ChatLayoutProps) => {
 				maxSize={isMobile ? 8 : 30}
 				onCollapse={() => {
 					setIsCollapsed(true)
-					document.cookie = `react-resizable-panels:collapsed=true`
+					document.cookie = `react-resizable-panels:collapsed=true;`
 				}}
 				onExpand={() => {
 					setIsCollapsed(false)
-					document.cookie = `react-resizable-panels:collapsed=true`
+					document.cookie = `react-resizable-panels:collapsed=false;`
 				}}
 				className={cn(
 					isCollapsed &&
-						"min-w-[88px] transition-all duration-300 ease-in-out"
+						"min-w-[80px] transition-all duration-300 ease-in-out"
 				)}
 			>
 				<Sidebar isCollapsed={isCollapsed} />
