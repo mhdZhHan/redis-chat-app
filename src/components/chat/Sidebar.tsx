@@ -1,3 +1,6 @@
+import { LogOut } from "lucide-react"
+import useSound from "use-sound"
+
 import { USERS } from "@/db/dummy"
 
 import { ScrollArea } from "../ui/scroll-area"
@@ -10,13 +13,18 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
-import { LogOut } from "lucide-react"
+
+import { usePreferences } from "@/store/usePreferences"
 
 type SidebarProps = {
 	isCollapsed: boolean
 }
 
 const Sidebar = ({ isCollapsed }: SidebarProps) => {
+	const { soundEnabled } = usePreferences()
+
+	const [playClickSound] = useSound("/sounds/mouse-click.mp3")
+
 	const selectedUser = USERS[0]
 
 	return (
@@ -35,7 +43,11 @@ const Sidebar = ({ isCollapsed }: SidebarProps) => {
 						<TooltipProvider key={index}>
 							<Tooltip delayDuration={0}>
 								<TooltipTrigger asChild>
-									<div>
+									<div
+										onClick={() =>
+											soundEnabled && playClickSound()
+										}
+									>
 										<Avatar className="my-1 flex justify-center items-center">
 											<AvatarImage
 												src={
@@ -72,6 +84,7 @@ const Sidebar = ({ isCollapsed }: SidebarProps) => {
 								selectedUser?.email === user.email &&
 									"dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white shrink"
 							)}
+							onClick={() => soundEnabled && playClickSound()}
 						>
 							<Avatar className="flex justify-center items-center">
 								<AvatarImage
