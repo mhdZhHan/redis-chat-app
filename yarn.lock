@@ -1414,6 +1414,18 @@
     "@swc/counter" "^0.1.3"
     tslib "^2.4.0"
 
+"@tanstack/query-core@5.55.4":
+  version "5.55.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.55.4.tgz#21ef6c6505bf108570f1c18f5f3b90efc8b1c2d6"
+  integrity sha512-uoRqNnRfzOH4OMIoxj8E2+Us89UIGXfau981qYJWsNMkFS1GXR4UIyzUTVGq4N7SDLHgFPpo6IOazqUV5gkMZA==
+
+"@tanstack/react-query@^5.55.4":
+  version "5.55.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.55.4.tgz#4c8f54a05704e9f9a9ffc77a6dfa79b5a33f9905"
+  integrity sha512-e3uX5XkLD9oTV66/VsVpkYz3Ds/ps/Yk+V5d89xthAbtNIKKBEm4FdNb9yISFzGEGezUzVO68qmfmiSrtScvsg==
+  dependencies:
+    "@tanstack/query-core" "5.55.4"
+
 "@types/json5@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
