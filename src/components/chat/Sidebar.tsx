@@ -15,6 +15,7 @@ import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
 
 import { usePreferences } from "@/store/usePreferences"
+import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components"
 
 type SidebarProps = {
 	isCollapsed: boolean
@@ -118,10 +119,9 @@ const Sidebar = ({ isCollapsed }: SidebarProps) => {
 						</div>
 					)}
 					<div className="flex">
-						<LogOut size={22} cursor={"pointer"} />
-						{/* <LogoutLink>
+						<LogoutLink>
 							<LogOut size={22} cursor={"pointer"} />
-						</LogoutLink> */}
+						</LogoutLink>
 					</div>
 				</div>
 			</div>
