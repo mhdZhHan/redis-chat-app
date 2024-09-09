@@ -1,6 +1,22 @@
+"use client"
+
+import { checkAuthStatus } from "@/app/actions/auth.action"
+import { useQuery } from "@tanstack/react-query"
 import { Loader } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const page = () => {
+	const { data } = useQuery({
+		queryKey: ["authCheck"],
+		queryFn: async () => await checkAuthStatus(),
+	})
+
+	const router = useRouter()
+
+	if (data?.success) {
+		router.push("/")
+	}
+
 	return (
 		<div className="mt-20 w-full flex justify-center">
 			<div className="flex flex-col items-center gap-2">
