@@ -1,4 +1,5 @@
 import { useRef, useState } from "react"
+import Image from "next/image"
 import { ImageIcon, Loader, SendHorizonal, ThumbsUp } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
 import useSound from "use-sound"
@@ -6,14 +7,18 @@ import useSound from "use-sound"
 import { Textarea } from "../ui/textarea"
 import EmojiPicker from "./EmojiPicker"
 import { Button } from "../ui/button"
+import { CldUploadWidget, CloudinaryUploadWidgetInfo } from "next-cloudinary"
 
 import { usePreferences } from "@/store/usePreferences"
 import { useMutation } from "@tanstack/react-query"
 import { sendMessageAction } from "@/app/actions/message.action"
 import { useSelectedUser } from "@/store/useSelectedUser"
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from "../ui/dialog"
 
 const ChatBottomBar = () => {
 	const [message, setMessage] = useState("")
+	const [imgUrl, setImgUrl] = useState("")
+
 	const messageRef = useRef<HTMLTextAreaElement | null>(null)
 
 	const { soundEnabled } = usePreferences()
@@ -66,11 +71,56 @@ const ChatBottomBar = () => {
 	return (
 		<div className="p-2 flex justify-between w-full items-center gap-2">
 			{!message.trim() && (
-				<ImageIcon
-					className="cursor-pointer text-muted-foreground"
-					size={20}
-				/>
+				<CldUploadWidget
+					signatureEndpoint={"/api/sign-cloudinary-params"}
+					onSuccess={(result, { widget }) => {
+						setImgUrl(
+							(result.info as CloudinaryUploadWidgetInfo)
+								.secure_url
+						)
+						widget.close()
+					}}
+				>
+					{({ open }) => {
+						return (
+							<ImageIcon
+								size={20}
+								onClick={() => open()}
+								className="cursor-pointer text-muted-foreground"
+							/>
+						)
+					}}
+				</CldUploadWidget>
 			)}
+
+			<Dialog open={!!imgUrl}>
+				<DialogContent>
+					<DialogHeader>Image Preview</DialogHeader>
+					<div className="flex justify-center items-center relative h-96 w-full mx-auto">
+						<Image
+							src={imgUrl}
+							fill
+							alt="Image Preview"
+							className="object-contain"
+						/>
+					</div>
+					<DialogFooter>
+						<Button
+							type="submit"
+							onClick={() => {
+								sendMessage({
+									content: imgUrl,
+									messageType: "image",
+									receiverId: selectedUser?.id!,
+								})
+								setImgUrl("")
+							}}
+						>
+							Send
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 
 			<AnimatePresence>
 				<motion.div
