@@ -1,15 +1,44 @@
-import { USERS, messages } from "@/db/dummy"
+import { useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { AnimatePresence, motion } from "framer-motion"
 import { Avatar, AvatarImage } from "../ui/avatar"
+import { useSelectedUser } from "@/store/useSelectedUser"
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs"
+import { useQuery } from "@tanstack/react-query"
+import { getMessages } from "@/app/actions/message.action"
 
 const MessageList = () => {
-	const currentUser = USERS[1]
-	const selectedUser = USERS[0]
+	const { selectedUser } = useSelectedUser()
+	const { user: currentUser, isLoading: isUserLoading } =
+		useKindeBrowserClient()
+
+	const messageContainerRef = useRef<HTMLDivElement | null>(null)
+
+	const { data: messages, isLoading } = useQuery({
+		queryKey: ["messages", selectedUser?.id],
+		queryFn: async () => {
+			if (selectedUser && currentUser) {
+				return await getMessages(selectedUser?.id, currentUser?.id)
+			}
+		},
+		enabled: !!selectedUser && !!currentUser && !isUserLoading,
+	})
+
+	// scroll to the bottom of the message container when new messages are added
+	useEffect(() => {
+		if (messageContainerRef.current) {
+			messageContainerRef.current.scrollTop =
+				messageContainerRef.current.scrollHeight
+		}
+	}, [messages])
+
 	return (
-		<div className="w-full overflow-y-auto overflow-x-hidden h-full  flex flex-col">
+		<div
+			ref={messageContainerRef}
+			className="w-full overflow-y-auto overflow-x-hidden h-full  flex flex-col"
+		>
 			<AnimatePresence>
-				{messages.map((message, index) => (
+				{messages?.map((message, index) => (
 					<motion.div
 						key={index}
 						layout
@@ -31,16 +60,16 @@ const MessageList = () => {
 						}}
 						className={cn(
 							"flex flex-col gap-2 p-4 whitespace-pre-wrap",
-							message.senderId === currentUser.id
+							message.senderId === currentUser?.id
 								? "items-end"
 								: "items-start"
 						)}
 					>
 						<div className="flex gap-3 items-center">
-							{message.senderId === selectedUser.id && (
+							{message.senderId === selectedUser?.id && (
 								<Avatar className="flex justify-center items-center">
 									<AvatarImage
-										src={selectedUser.image}
+										src={selectedUser?.image}
 										alt="User Image"
 										className="border-2 border-white rounded-full"
 									/>
@@ -59,10 +88,13 @@ const MessageList = () => {
 								/>
 							)}
 
-							{message.senderId === currentUser.id && (
+							{message.senderId === currentUser?.id && (
 								<Avatar className="flex justify-center items-center">
 									<AvatarImage
-										src={currentUser.image}
+										src={
+											currentUser?.picture ||
+											"/user-placeholder.png"
+										}
 										alt="User Image"
 										className="border-2 border-white rounded-full"
 									/>
