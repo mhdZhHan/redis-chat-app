@@ -8,13 +8,16 @@ import EmojiPicker from "./EmojiPicker"
 import { Button } from "../ui/button"
 
 import { usePreferences } from "@/store/usePreferences"
+import { useMutation } from "@tanstack/react-query"
+import { sendMessageAction } from "@/app/actions/message.action"
+import { useSelectedUser } from "@/store/useSelectedUser"
 
 const ChatBottomBar = () => {
 	const [message, setMessage] = useState("")
 	const messageRef = useRef<HTMLTextAreaElement | null>(null)
-	const isPending = false
 
 	const { soundEnabled } = usePreferences()
+	const { selectedUser } = useSelectedUser()
 
 	const [playSound1] = useSound("/sounds/keystroke1.mp3")
 	const [playSound2] = useSound("/sounds/keystroke2.mp3")
@@ -30,6 +33,35 @@ const ChatBottomBar = () => {
 
 		soundEnabled && keyStrokeSoundsList[randomSound]()
 	}
+
+	const handleKeyDown = (evt: React.KeyboardEvent<HTMLTextAreaElement>) => {
+		if (evt.key === "Enter" && !evt.shiftKey) {
+			evt.preventDefault()
+			handleSendMessage()
+		}
+
+		if (evt.key === "Enter" && evt.shiftKey) {
+			evt.preventDefault()
+			setMessage(message + "\n")
+		}
+	}
+
+	const handleSendMessage = () => {
+		if (!message.trim()) return
+
+		sendMessage({
+			content: message,
+			messageType: "text",
+			receiverId: selectedUser?.id!,
+		})
+
+		setMessage("")
+		messageRef.current?.focus()
+	}
+
+	const { mutate: sendMessage, isPending } = useMutation({
+		mutationFn: sendMessageAction,
+	})
 
 	return (
 		<div className="p-2 flex justify-between w-full items-center gap-2">
@@ -59,6 +91,7 @@ const ChatBottomBar = () => {
 						rows={1}
 						placeholder="Aa"
 						value={message}
+						onKeyDown={handleKeyDown}
 						onChange={(evt) => {
 							setMessage(evt.target.value)
 							playRandomKeyStrokeSound()
@@ -81,6 +114,7 @@ const ChatBottomBar = () => {
 						className="h-9 w-9 dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white shrink-0"
 						variant={"ghost"}
 						size={"icon"}
+						onClick={handleSendMessage}
 					>
 						<SendHorizonal
 							size={20}
@@ -97,6 +131,13 @@ const ChatBottomBar = () => {
 							<ThumbsUp
 								size={20}
 								className="text-muted-foreground"
+								onClick={() =>
+									sendMessage({
+										content: "👍",
+										messageType: "text",
+										receiverId: selectedUser?.id!,
+									})
+								}
 							/>
 						) : (
 							<Loader
