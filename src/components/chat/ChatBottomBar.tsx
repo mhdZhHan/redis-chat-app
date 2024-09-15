@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { ImageIcon, Loader, SendHorizonal, ThumbsUp } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
@@ -10,10 +10,13 @@ import { Button } from "../ui/button"
 import { CldUploadWidget, CloudinaryUploadWidgetInfo } from "next-cloudinary"
 
 import { usePreferences } from "@/store/usePreferences"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { sendMessageAction } from "@/app/actions/message.action"
 import { useSelectedUser } from "@/store/useSelectedUser"
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from "../ui/dialog"
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs"
+import { pusherClient } from "@/lib/pusher"
+import { Message } from "@/db/dummy"
 
 const ChatBottomBar = () => {
 	const [message, setMessage] = useState("")
@@ -23,6 +26,7 @@ const ChatBottomBar = () => {
 
 	const { soundEnabled } = usePreferences()
 	const { selectedUser } = useSelectedUser()
+	const { user: currentUser } = useKindeBrowserClient()
 
 	const [playSound1] = useSound("/sounds/keystroke1.mp3")
 	const [playSound2] = useSound("/sounds/keystroke2.mp3")
@@ -64,9 +68,46 @@ const ChatBottomBar = () => {
 		messageRef.current?.focus()
 	}
 
+	const queryClient = useQueryClient()
+
 	const { mutate: sendMessage, isPending } = useMutation({
 		mutationFn: sendMessageAction,
 	})
+
+	useEffect(() => {
+		const channelName = `${currentUser?.id}__${selectedUser?.id}`
+			.split("__")
+			.sort()
+			.join("__")
+		const channel = pusherClient?.subscribe(channelName)
+
+		const handleNewMessage = (data: { message: Message }) => {
+			queryClient.setQueryData(
+				["messages", selectedUser?.id],
+				(oldMessages: Message[]) => {
+					return [...oldMessages, data.message]
+				}
+			)
+
+			// if (soundEnabled && data.message.senderId !== currentUser?.id) {
+			// 	playNotificationSound()
+			// }
+		}
+
+		channel.bind("newMessage", handleNewMessage)
+
+		// ! Absolutely important, otherwise the event listener will be added multiple times which means you'll see the incoming new message multiple times
+		return () => {
+			channel.unbind("newMessage", handleNewMessage)
+			pusherClient.unsubscribe(channelName)
+		}
+	}, [
+		currentUser?.id,
+		selectedUser?.id,
+		queryClient,
+		// playNotificationSound,
+		soundEnabled,
+	])
 
 	return (
 		<div className="p-2 flex justify-between w-full items-center gap-2">
